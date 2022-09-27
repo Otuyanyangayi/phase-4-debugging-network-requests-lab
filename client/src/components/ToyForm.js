@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 
 function ToyForm({ onAddToy }) {
+  const [errors, setErrors] = useState([]);
   const [formData, setFormData] = useState({
     name: "",
     image: "",
@@ -28,14 +29,13 @@ function ToyForm({ onAddToy }) {
       },
       body: JSON.stringify(newToy),
     })
-      .then((r) => r.json())
-      .then((newToy) => {
-        setFormData({
-          name: "",
-          image: "",
-        });
-        onAddToy(newToy);
-      });
+    .then((response) => {
+      if (response.ok) {
+        response.json().then((newToy) => console.log(newToy));
+      } else {
+        response.json().then((errorData) => setErrors(errorData.errors));
+      }
+    })
   }
 
   return (
@@ -66,6 +66,14 @@ function ToyForm({ onAddToy }) {
           value="Create New Toy"
           className="submit"
         />
+        {errors.length > 0 && (
+       <ul style={{ color: "red" }}>
+      {errors.map((error) => (
+        <li key={error}>{error}</li>
+      ))}
+    </ul>
+  )}
+
       </form>
     </div>
   );
